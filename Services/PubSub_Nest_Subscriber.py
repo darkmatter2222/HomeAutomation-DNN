@@ -16,11 +16,12 @@ if os.name != 'nt':
 
 my_logger.info('Initializing .env')
 
-target_env_path = '/home/pi/HomeAutomation-DNN'  # default linux
+target_env_path = '/home/pi/secure'  # default linux
 if os.name == 'nt':
     target_env_path = '\\\\SUSMANSERVER\\Active Server Drive\\HomeAutomation' # Windows
 else:
     sys.path.append('/home/pi/HomeAutomation-DNN')  # add this to the path
+    sys.path.append('/home/pi/secure')  # add this to the path
 
 env_path = Path(target_env_path) / '.env'
 load_dotenv(dotenv_path=env_path)

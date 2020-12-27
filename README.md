@@ -9,7 +9,7 @@ Subscribes to a Google PubSub enpoint with the Google Nest Device Access topic a
   - 3 Outdoor Cameras (Cars/Dogs/People)  
   - 1 Indoor Camera (People)  
   - 1 Thermastat (2x sensors) (Climate control)    
-  - 5 Smoke/CO (Info)  
+  - 5 Smoke/CO (Info)  (not yet available in Nest Device Access?)  
   
 :warning:IMPORTANT: This number of events does not charge me anything in GCP. Your milage may vary.:warning:  
 I had trouble finding information on how to do all this, below are some step-by-step instructions to get you here:  
@@ -28,4 +28,4 @@ Monitors and automatically refreshes expiring/expiered OAuth2 tokens
 
 ## [Device_Metadata_Updater.py](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Services/Device_Metadata_Updater.py)  
 Running on a raspberry PI as a service as Initialized by [./Home_Automation_Services_Startup.sh](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Home_Automation_Services_Startup.sh)  
-Adds additional metadata to master record according to the [nest 'decice' endpoint](https://developers.google.com/nest/device-access/api)  
+Adds additional metadata to master record according to the [nest 'device' endpoint](https://developers.google.com/nest/device-access/api)  

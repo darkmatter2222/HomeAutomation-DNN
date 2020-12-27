@@ -4,7 +4,7 @@ Nest Home Automation, Deep Neural Networks to recognize things of interest to me
 
 # [./Services/](https://github.com/darkmatter2222/HomeAutomation-DNN/tree/main/Services)
 ## [PubSub_Nest_Subscriber.py](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Services/PubSub_Nest_Subscriber.py)
-Running on a Raspberry PI 3b+ as a service as initialized by ./Home_Automation_Services_Startup.sh  
+Running on a Raspberry PI 3b+ as a service as initialized by [./Home_Automation_Services_Startup.sh](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Home_Automation_Services_Startup.sh)  
 Subscribes to a Google PubSub enpoint with the Google Nest Device Access topic ans write all events to on-prem MongoDB. I have around 2k Events on my property a week:  
   - 3 Outdoor Cameras (Cars/Dogs/People)  
   - 1 Indoor Camera (People)  
@@ -23,6 +23,9 @@ I had trouble finding information on how to do all this, below are some step-by-
     - Have your NDA topic on hand  
 
 ## [OAuth_Token_Refresh_Engine.py](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Services/OAuth_Token_Refresh_Engine.py)  
-Running on a raspberry PI as a service as Initialized by ./Home_Automation_Services_Startup.sh  
+Running on a raspberry PI as a service as Initialized by [./Home_Automation_Services_Startup.sh](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Home_Automation_Services_Startup.sh)  
 Monitors and automatically refreshes expiring/expiered OAuth2 tokens
 
+## [Device_Metadata_Updater.py](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Services/Device_Metadata_Updater.py)  
+Running on a raspberry PI as a service as Initialized by [./Home_Automation_Services_Startup.sh](https://github.com/darkmatter2222/HomeAutomation-DNN/blob/main/Home_Automation_Services_Startup.sh)  
+Adds additional metadata to master record according to the [nest 'decice' endpoint](https://developers.google.com/nest/device-access/api)  

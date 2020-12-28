@@ -19,7 +19,7 @@ if os.name != 'nt':
     my_logger.addHandler(handler)
 
 my_logger.info('Initializing .env')
-target_image_root = '../../neural/HomeAutomation-DNN/images'
+target_image_root = '/home/pi/neural/HomeAutomation-DNN/images'
 target_env_path = '/home/pi/secure'  # default linux
 if os.name == 'nt':
     target_env_path = '\\\\SUSMANSERVER\\Active Server Drive\\HomeAutomation' # Windows

@@ -65,7 +65,7 @@ def pullimage(device_id, event_id, access_token):
     response = requests.get(url=url, headers=headers)
     image = Image.open(io.BytesIO(response.content))
     unique_id = str(uuid.uuid1())
-    image.save(f"{target_image_root}\{unique_id}.jpeg")
+    image.save(f"{target_image_root}/{unique_id}.jpeg")
     return unique_id
 
 def pullimages(payload):

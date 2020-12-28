@@ -11,6 +11,8 @@ Subscribes to a Google PubSub enpoint with the Google Nest Device Access topic a
   - 1 Thermastat (2x sensors) (Climate control)    
   - 5 Smoke/CO (Info)  (not yet available in Nest Device Access?)  
   
+Due to the nature of Nest Event Image avaibility (expires in 30 seconds), this service also downloads the image and writes to local directory:camera:  
+
 :warning:IMPORTANT: This number of events does not charge me anything in GCP. Your milage may vary.:warning:  
 I had trouble finding information on how to do all this, below are some step-by-step instructions to get you here:  
   - Create GCP Account [here](https://cloud.google.com/)  

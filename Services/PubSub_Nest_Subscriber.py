@@ -1,12 +1,16 @@
 from dotenv import load_dotenv
 from pathlib import Path
 import json, os, subprocess, datetime
+import uuid
 from pymongo import MongoClient
 from google.oauth2 import service_account
 from google.cloud import pubsub_v1
+from bson.objectid import ObjectId
 import logging
+import requests
 import logging.handlers
-import sys
+import PIL.Image as Image
+import sys, io
 
 my_logger = logging.getLogger('MyLogger')
 my_logger.setLevel(logging.INFO)
@@ -15,10 +19,11 @@ if os.name != 'nt':
     my_logger.addHandler(handler)
 
 my_logger.info('Initializing .env')
-
+target_image_root = '../../neural/HomeAutomation-DNN/images/'
 target_env_path = '/home/pi/secure'  # default linux
 if os.name == 'nt':
     target_env_path = '\\\\SUSMANSERVER\\Active Server Drive\\HomeAutomation' # Windows
+    target_image_root = '../../testing'
 else:
     sys.path.append('/home/pi/HomeAutomation-DNN')  # add this to the path
     sys.path.append('/home/pi/secure')  # add this to the path
@@ -35,6 +40,49 @@ my_client = MongoClient('mongodb://susmanserver:27017',
 my_db = my_client["Google_Nest"]
 my_col = my_db["PubSub_Events"]
 
+def getaccesstoken():
+    db_name = 'OAuth2_Manager'
+    collection_name = 'Active_OAuth2'
+    my_client = MongoClient('mongodb://susmanserver:27017',
+                            username=os.getenv("OAuth2_Manager_Username"),
+                            password=os.getenv("OAuth2_Manager_Password"),
+                            authSource=db_name,
+                            authMechanism='SCRAM-SHA-256')
+    my_db = my_client[db_name]
+    my_col = my_db[collection_name]
+    token = my_col.find({'_id': ObjectId('5fd61e859532201850007cdf')})[0]['access_token']
+    return token
+
+def pullimage(device_id, event_id, access_token):
+    url = f'https://smartdevicemanagement.googleapis.com/v1/{device_id}:executeCommand'
+    headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {access_token}'}
+    data = {"command": "sdm.devices.commands.CameraEventImage.GenerateImage", "params": {"eventId": event_id}}
+    response = requests.post(url=url, headers=headers, data=json.dumps(data))
+    result = response.content.decode('ascii')
+    json_result = json.loads(result)
+    url = json_result['results']['url']
+    headers = {'Content-Type': 'application/json', 'Authorization': f'{json_result["results"]["token"]}'}
+    response = requests.get(url=url, headers=headers)
+    image = Image.open(io.BytesIO(response.content))
+    unique_id = str(uuid.uuid1())
+    image.save(f"{target_image_root}\{unique_id}.jpeg")
+    return unique_id
+
+def pullimages(payload):
+    try:
+        if 'events' in payload['resourceUpdate']:
+            for key in payload['resourceUpdate']['events'].keys():
+                if 'Camera' in key:
+                    access_token = getaccesstoken()
+                    image_uid = pullimage(device_id=payload['resourceUpdate']['name'],
+                              event_id=payload['resourceUpdate']['events'][key]['eventId'],
+                              access_token=access_token)
+                    payload['resourceUpdate']['events'][key]['image_uid'] = image_uid
+
+    except Exception as e:
+        my_logger.critical(e)
+
+    return payload
 
 def scrubpayload(payload):
     try:
@@ -74,7 +122,8 @@ def callback(message):
         payload = message.data.decode('UTF-8')
         json_payload = json.loads(payload)
         scrubbed_json_payload = scrubpayload(json_payload)
-        insert_id = my_col.insert_one(scrubbed_json_payload).inserted_id
+        pulled_scrubbed_json_payload = pullimages(scrubbed_json_payload)
+        insert_id = my_col.insert_one(pulled_scrubbed_json_payload).inserted_id
         my_logger.debug(insert_id)
     except Exception as e:
         my_logger.critical(e)

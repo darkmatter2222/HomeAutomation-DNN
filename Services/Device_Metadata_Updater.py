@@ -30,7 +30,7 @@ load_dotenv(dotenv_path=env_path)
 my_logger.info('Cycle Started')
 
 while True:
-    time.sleep(60)
+    time.sleep(300)
     try:
         my_logger.info('Connecting to MongoDB, pulling auth')
         db_name = 'OAuth2_Manager'

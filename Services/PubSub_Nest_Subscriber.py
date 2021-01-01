@@ -1,18 +1,17 @@
 from dotenv import load_dotenv
 from pathlib import Path
-import json, os, subprocess, datetime
+import json, os, datetime
 import uuid
 from pymongo import MongoClient
 from datetime import datetime, timezone, timedelta
 from google.oauth2 import service_account
 from google.cloud import pubsub_v1
 from bson.objectid import ObjectId
-import logging
 import requests
 import logging.handlers
 import PIL.Image as Image
 import sys, io
-import Helpers.Exception_Handling.Exception_Handling as eh
+import Services.Helpers.Exception_Handling.Exception_Handling as eh
 
 my_logger = logging.getLogger('MyLogger')
 my_logger.setLevel(logging.INFO)
@@ -28,6 +27,7 @@ if os.name == 'nt':
     target_image_root = '../../testing'
 else:
     sys.path.append('/home/pi/HomeAutomation-DNN')  # add this to the path
+    sys.path.append('/home/pi/HomeAutomation-DNN/Services')
     sys.path.append('/home/pi/secure')  # add this to the path
 
 env_path = Path(target_env_path) / '.env'

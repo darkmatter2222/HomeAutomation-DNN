@@ -12,6 +12,7 @@ import requests
 import logging.handlers
 import PIL.Image as Image
 import sys, io
+import Helpers.Exception_Handling.Exception_Handling as eh
 
 my_logger = logging.getLogger('MyLogger')
 my_logger.setLevel(logging.INFO)
@@ -94,7 +95,8 @@ def pullimages(payload):
                     payload['resourceUpdate']['events'][key]['image_uid'] = image_uid
 
     except Exception as e:
-        my_logger.critical(e)
+        message = eh.formatexception(exception=e)
+        my_logger.critical(message)
 
     return payload
 
@@ -130,7 +132,8 @@ def pullmetainfo(last_refresh):
 
             my_logger.info(f'Meta Downloaded')
         except Exception as e:
-            my_logger.critical(e)
+            message = eh.formatexception(exception=e)
+            my_logger.critical(message)
     return last_refresh
 
 def applymetadata(payload):
@@ -139,7 +142,8 @@ def applymetadata(payload):
         payload['resourceUpdate']['displayName'] = \
             nest_metadata['devices'][payload['resourceUpdate']['name']]['displayName']
     except Exception as e:
-        my_logger.critical(e)
+        message = eh.formatexception(exception=e)
+        my_logger.critical(message)
     return payload
 
 def scrubpayload(payload):
@@ -154,7 +158,8 @@ def scrubpayload(payload):
                 payload['resourceUpdate']['events'][this_key.replace('.', '_')] = \
                     payload['resourceUpdate']['events'].pop(this_key)
     except Exception as e:
-        my_logger.critical(e)
+        message = eh.formatexception(exception=e)
+        my_logger.critical(message)
 
     try:
         if 'traits' in payload['resourceUpdate']:
@@ -167,7 +172,8 @@ def scrubpayload(payload):
                 payload['resourceUpdate']['traits'][this_key.replace('.', '_')] = \
                     payload['resourceUpdate']['traits'].pop(this_key)
     except Exception as e:
-        my_logger.critical(e)
+        message = eh.formatexception(exception=e)
+        my_logger.critical(message)
 
     return payload
 
@@ -189,13 +195,15 @@ def callback(message):
         insert_id = my_col.insert_one(json_payload_4).inserted_id
         my_logger.debug(insert_id)
     except Exception as e:
-        my_logger.critical(e)
+        message = eh.formatexception(exception=e)
+        my_logger.critical(message)
 
     my_logger.debug('Starting ack')
     try:
         message.ack()
     except Exception as e:
-        my_logger.critical(e)
+        message = eh.formatexception(exception=e)
+        my_logger.critical(message)
 
 
 my_logger.info('Setting Creds')
@@ -220,7 +228,8 @@ except KeyboardInterrupt:
     my_logger.critical('KeyboardInterrupt')
     future.cancel()
 except Exception as e:
-    my_logger.critical(e)
+    message = eh.formatexception(exception=e)
+    my_logger.critical(message)
     future.cancel()
 
 my_logger.debug('Exiting')

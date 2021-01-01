@@ -78,6 +78,7 @@ def pullimage(device_id, event_id, access_token, payload):
         os.makedirs(this_image_target)
 
     image.save(f"{this_image_target}/{unique_id}.jpeg")
+    my_logger.info(f'Image Saved')
     return unique_id
 
 def pullimages(payload):

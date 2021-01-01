@@ -72,7 +72,7 @@ def pullimage(device_id, event_id, access_token, payload):
     unique_id = str(uuid.uuid1())
 
     this_image_target = \
-        f"{target_image_root}\{payload['resourceUpdate']['displayName']}\{payload['resourceUpdate']['type']}"
+        f"{target_image_root}/{payload['resourceUpdate']['displayName']}/{payload['resourceUpdate']['type']}"
 
     if not os.path.exists(this_image_target):
         os.makedirs(this_image_target)

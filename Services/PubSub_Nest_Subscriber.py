@@ -78,7 +78,7 @@ def pullimage(device_id, event_id, access_token, payload):
         os.makedirs(this_image_target)
 
     image.save(f"{this_image_target}/{unique_id}.jpeg")
-    my_logger.info(f'Image Saved')
+    my_logger.info(f'Image {unique_id} Saved')
     return unique_id
 
 def pullimages(payload):
@@ -145,9 +145,10 @@ def applymetadata(payload):
 def scrubpayload(payload):
     try:
         if 'events' in payload['resourceUpdate']:
-            my_logger.info('An "event" event has occurred')
+            my_logger.info('An "event" was raised...')
             list = []
             for key in payload['resourceUpdate']['events'].keys():
+                my_logger.info(f'event:{key}')
                 list.append(key)
             for this_key in list:
                 payload['resourceUpdate']['events'][this_key.replace('.', '_')] = \
@@ -157,9 +158,10 @@ def scrubpayload(payload):
 
     try:
         if 'traits' in payload['resourceUpdate']:
-            my_logger.info('A "trait" event has occurred')
+            my_logger.info('A "trait" was raised...')
             list = []
             for key in payload['resourceUpdate']['traits'].keys():
+                my_logger.info(f'trait:{key}')
                 list.append(key)
             for this_key in list:
                 payload['resourceUpdate']['traits'][this_key.replace('.', '_')] = \

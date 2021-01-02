@@ -2,9 +2,7 @@ import sys
 sys.path.append('/home/pi/HomeAutomation-DNN')
 import Initialize_Project as ip
 logger = ip.initialize()
-from dotenv import load_dotenv
-from pathlib import Path
-import json, os, subprocess, datetime
+import json, os, datetime
 import uuid
 from pymongo import MongoClient
 from datetime import datetime, timezone, timedelta
@@ -13,7 +11,8 @@ from google.cloud import pubsub_v1
 from bson.objectid import ObjectId
 import requests
 import PIL.Image as Image
-import sys, io
+import io
+from Helpers.Exception_Handling import Exception_Handling as eh
 
 
 target_image_root = '/home/pi/neural/HomeAutomation-DNN/images'
@@ -82,7 +81,8 @@ def pullimages(payload):
                     payload['resourceUpdate']['events'][key]['image_uid'] = image_uid
 
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
 
     return payload
 
@@ -118,7 +118,8 @@ def pullmetainfo(last_refresh):
 
             logger.info(f'Meta Downloaded')
         except Exception as e:
-            logger.critical(e)
+            message = eh.formatexception(e)
+            logger.critical(message)
     return last_refresh
 
 def applymetadata(payload):
@@ -127,7 +128,8 @@ def applymetadata(payload):
         payload['resourceUpdate']['displayName'] = \
             nest_metadata['devices'][payload['resourceUpdate']['name']]['displayName']
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
     return payload
 
 def scrubpayload(payload):
@@ -142,7 +144,8 @@ def scrubpayload(payload):
                 payload['resourceUpdate']['events'][this_key.replace('.', '_')] = \
                     payload['resourceUpdate']['events'].pop(this_key)
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
 
     try:
         if 'traits' in payload['resourceUpdate']:
@@ -155,7 +158,8 @@ def scrubpayload(payload):
                 payload['resourceUpdate']['traits'][this_key.replace('.', '_')] = \
                     payload['resourceUpdate']['traits'].pop(this_key)
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
 
     return payload
 
@@ -165,7 +169,8 @@ def callback(message):
     try:
         logger.debug(message.data.decode('UTF-8'))
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
     logger.debug('Starting Callback')
     try:
         payload = message.data.decode('UTF-8')
@@ -177,13 +182,15 @@ def callback(message):
         insert_id = my_col.insert_one(json_payload_4).inserted_id
         logger.debug(insert_id)
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
 
     logger.debug('Starting ack')
     try:
         message.ack()
     except Exception as e:
-        logger.critical(e)
+        message = eh.formatexception(e)
+        logger.critical(message)
 
 
 logger.info('Setting Creds')
@@ -208,7 +215,8 @@ except KeyboardInterrupt:
     logger.critical('KeyboardInterrupt')
     future.cancel()
 except Exception as e:
-    logger.critical(e)
+    message = eh.formatexception(e)
+    logger.critical(message)
     future.cancel()
 
 logger.debug('Exiting')

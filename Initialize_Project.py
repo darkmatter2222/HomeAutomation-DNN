@@ -19,6 +19,9 @@ def initialize():
     else:
         sys.path.append('/home/pi/HomeAutomation-DNN')  # add this to the path
         sys.path.append('/home/pi/secure')  # add this to the path
+        sys.path.append('/home/pi/Services')  # add this to the path
+        sys.path.append('/home/pi/Helpers')  # add this to the path
+        sys.path.append('/home/pi/Helpers/Exception_Handling')  # add this to the path
 
     my_logger.info('Initializing Environment')
     env_path = Path(target_env_path) / '.env'

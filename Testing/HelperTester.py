@@ -1,4 +1,4 @@
-import Helpers.Exception_Handling.Exception_Handling as eh
+
 
 import logging.handlers
 import sys, os
@@ -21,5 +21,6 @@ else:
     sys.path.append('/home/pi/Helpers')  # add this to the path
     sys.path.append('/home/pi/Helpers/Exception_Handling')  # add this to the path
 
+import Helpers.Exception_Handling.Exception_Handling as eh
 
 eh.test('If you are seeing this, it worked')

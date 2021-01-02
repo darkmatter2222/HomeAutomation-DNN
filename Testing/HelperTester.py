@@ -1,5 +1,8 @@
-import sys
+import sys, os
 sys.path.append('/home/pi/HomeAutomation-DNN')
-import Initialize_Project as eh
+import Initialize_Project as ip
 
-eh.test('If you are seeing this, it worked')
+logger = ip.initialize()
+
+logger.info('Main Initialized, testing...')
+print(os.getenv('Google_Nest_Username'))

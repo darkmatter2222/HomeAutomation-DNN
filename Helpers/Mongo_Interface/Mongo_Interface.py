@@ -29,3 +29,7 @@ oauth2_manager_collection = oauth2_manager_db[oauth2_manager_collection_name]
 def getnestapiaccesstoken():
     token = oauth2_manager_collection.find({'_id': ObjectId('5fd61e859532201850007cdf')})[0]['access_token']
     return token
+
+def insertnestpayload(payload):
+    insert_id = pubsub_events_collection.insert_one(payload).inserted_id
+    return insert_id

@@ -24,15 +24,6 @@ nest_metadata = {'devices': {}}
 nest_metadata_expiration_seconds = 3600
 nest_metadata_last_refresh = datetime.now(timezone.utc) - timedelta(minutes=60)
 
-logger.info('Connecting to MongoDB')
-my_client = MongoClient('mongodb://susmanserver:27017',
-                        username=os.getenv("Google_Nest_Username"),
-                        password=os.getenv("Google_Nest_Password"),
-                        authSource='Google_Nest',
-                        authMechanism='SCRAM-SHA-256')
-my_db = my_client["Google_Nest"]
-my_col = my_db["PubSub_Events"]
-
 
 def pullimage(device_id, event_id, access_token, payload):
     url = f'https://smartdevicemanagement.googleapis.com/v1/{device_id}:executeCommand'
@@ -83,16 +74,7 @@ def pullmetainfo(last_refresh):
     if perform_refresh:
         try:
             logger.info('Connecting to MongoDB, pulling auth')
-            db_name = 'OAuth2_Manager'
-            collection_name = 'Active_OAuth2'
-            my_client = MongoClient('mongodb://susmanserver:27017',
-                                    username=os.getenv("OAuth2_Manager_Username"),
-                                    password=os.getenv("OAuth2_Manager_Password"),
-                                    authSource=db_name,
-                                    authMechanism='SCRAM-SHA-256')
-            my_db = my_client[db_name]
-            my_col = my_db[collection_name]
-            token = my_col.find({'_id': ObjectId('5fd61e859532201850007cdf')})[0]
+            token = mi.getnestapiaccesstoken()
             logger.info('Retrieving Devices')
             url = f'https://smartdevicemanagement.googleapis.com/v1/enterprises/{os.getenv("Google_Nest_Prodect_ID")}/devices'
             headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {token["access_token"]}'}
@@ -168,7 +150,7 @@ def callback(message):
         nest_metadata_last_refresh = pullmetainfo(nest_metadata_last_refresh)
         json_payload_3 = applymetadata(json_payload_2)
         json_payload_4 = pullimages(json_payload_3)
-        insert_id = my_col.insert_one(json_payload_4).inserted_id
+        insert_id = mi.insertnestpayload(json_payload_4)
         logger.debug(insert_id)
     except Exception as e:
         message = eh.formatexception(e)

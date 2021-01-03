@@ -6,5 +6,5 @@ def formatexception(exception):
         "traceback": traceback.format_exc(),
         "exception": exception
     }
-    return json.dumps(response, indent=2)
+    return str(response)
 

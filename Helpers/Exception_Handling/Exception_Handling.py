@@ -2,5 +2,9 @@ import json
 import traceback
 
 def formatexception(exception):
-    print(traceback.format_exc())
+    response = {
+        "traceback": traceback.format_exc(),
+        "exception": exception
+    }
+    return json.dumps(response, indent=2)
 

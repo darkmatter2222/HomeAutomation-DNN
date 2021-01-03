@@ -22,6 +22,7 @@ def initialize():
         sys.path.append('/home/pi/Services')  # add this to the path
         sys.path.append('/home/pi/Helpers')  # add this to the path
         sys.path.append('/home/pi/Helpers/Exception_Handling')  # add this to the path
+        sys.path.append('/home/pi/Helpers/Mongo_Interface')  # add this to the path
 
     my_logger.info('Initializing Environment')
     env_path = Path(target_env_path) / '.env'

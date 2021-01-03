@@ -13,6 +13,7 @@ import requests
 import PIL.Image as Image
 import io
 from Helpers.Exception_Handling import Exception_Handling as eh
+from Helpers.Mongo_Interface import Mongo_Interface as mi
 
 
 target_image_root = '/home/pi/neural/HomeAutomation-DNN/images'
@@ -32,18 +33,6 @@ my_client = MongoClient('mongodb://susmanserver:27017',
 my_db = my_client["Google_Nest"]
 my_col = my_db["PubSub_Events"]
 
-def getaccesstoken():
-    db_name = 'OAuth2_Manager'
-    collection_name = 'Active_OAuth2'
-    my_client = MongoClient('mongodb://susmanserver:27017',
-                            username=os.getenv("OAuth2_Manager_Username"),
-                            password=os.getenv("OAuth2_Manager_Password"),
-                            authSource=db_name,
-                            authMechanism='SCRAM-SHA-256')
-    my_db = my_client[db_name]
-    my_col = my_db[collection_name]
-    token = my_col.find({'_id': ObjectId('5fd61e859532201850007cdf')})[0]['access_token']
-    return token
 
 def pullimage(device_id, event_id, access_token, payload):
     url = f'https://smartdevicemanagement.googleapis.com/v1/{device_id}:executeCommand'
@@ -73,7 +62,7 @@ def pullimages(payload):
         if 'events' in payload['resourceUpdate']:
             for key in payload['resourceUpdate']['events'].keys():
                 if 'Camera' in key:
-                    access_token = getaccesstoken()
+                    access_token = mi.getnestapiaccesstoken()
                     image_uid = pullimage(device_id=payload['resourceUpdate']['name'],
                               event_id=payload['resourceUpdate']['events'][key]['eventId'],
                               access_token=access_token,

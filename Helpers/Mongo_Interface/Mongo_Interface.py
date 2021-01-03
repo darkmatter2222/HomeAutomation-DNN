@@ -11,7 +11,7 @@ google_nest_db_client = MongoClient(mongo_host,
                         username=os.getenv("Google_Nest_Username"),
                         password=os.getenv("Google_Nest_Password"),
                         authSource=google_nest_db_name,
-                        authMechanism=google_nest_db_name)
+                        authMechanism=mongo_authMechanism)
 google_nest_db = google_nest_db_client[google_nest_db_name]
 pubsub_events_collection = google_nest_db[pubsub_events_collection_name]
 
@@ -21,7 +21,7 @@ oauth2_manager_db_client = MongoClient(mongo_host,
                         username=os.getenv("OAuth2_Manager_Username"),
                         password=os.getenv("OAuth2_Manager_Password"),
                         authSource=oauth2_manager_db_name,
-                        authMechanism=google_nest_db_name)
+                        authMechanism=mongo_authMechanism)
 oauth2_manager_db = oauth2_manager_db_client[oauth2_manager_db_name]
 oauth2_manager_collection = oauth2_manager_db[oauth2_manager_collection_name]
 

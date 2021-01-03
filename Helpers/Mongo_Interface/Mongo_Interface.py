@@ -10,13 +10,8 @@ pubsub_events_collection_name = 'PubSub_Events'
 oauth2_manager_db_name = 'OAuth2_Manager'
 oauth2_manager_collection_name = 'Active_OAuth2'
 
-pubsub_events_collection = []
-oauth2_manager_collection = []
 
 def initializedb():
-    global oauth2_manager_collection
-    global pubsub_events_collection
-
     google_nest_db_client = MongoClient(mongo_host,
                             username=os.getenv("Google_Nest_Username"),
                             password=os.getenv("Google_Nest_Password"),
@@ -34,19 +29,25 @@ def initializedb():
     oauth2_manager_db = oauth2_manager_db_client[oauth2_manager_db_name]
     oauth2_manager_collection = oauth2_manager_db[oauth2_manager_collection_name]
 
+    return pubsub_events_collection, oauth2_manager_collection
+
 
 def getnestapiaccesstoken():
+    pubsub_events_collection, oauth2_manager_collection = initializedb()
     token = oauth2_manager_collection.find({'_id': ObjectId('5fd61e859532201850007cdf')})[0]['access_token']
     return token
 
 def insertnestpayload(payload):
+    pubsub_events_collection, oauth2_manager_collection = initializedb()
     insert_id = pubsub_events_collection.insert_one(payload).inserted_id
     return insert_id
 
 def getauthrecordsneedingrefresh(refresh_cutoff_utc_epoch):
+    pubsub_events_collection, oauth2_manager_collection = initializedb()
     records = oauth2_manager_collection.find({'expires_at': {"$lt": refresh_cutoff_utc_epoch}})
     return records
 
 def updateauthrecord(query, data):
+    pubsub_events_collection, oauth2_manager_collection = initializedb()
     oauth2_manager_collection.update_one(query, data)
 

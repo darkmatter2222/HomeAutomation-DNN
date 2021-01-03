@@ -15,6 +15,7 @@ import io
 from Helpers.Exception_Handling import Exception_Handling as eh
 from Helpers.Mongo_Interface import Mongo_Interface as mi
 
+mi.initializedb()
 
 target_image_root = '/home/pi/neural/HomeAutomation-DNN/images'
 if os.name == 'nt':

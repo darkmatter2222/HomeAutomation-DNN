@@ -18,6 +18,7 @@ import logging.handlers
 from Helpers.Exception_Handling import Exception_Handling as eh
 from Helpers.Mongo_Interface import Mongo_Interface as mi
 
+mi.initializedb()
 
 logger.info('Beginning Refresh Loop...')
 

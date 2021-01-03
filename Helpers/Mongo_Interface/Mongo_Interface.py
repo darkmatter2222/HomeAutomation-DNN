@@ -33,3 +33,11 @@ def getnestapiaccesstoken():
 def insertnestpayload(payload):
     insert_id = pubsub_events_collection.insert_one(payload).inserted_id
     return insert_id
+
+def getauthrecordsneedingrefresh(refresh_cutoff_utc_epoch):
+    records = oauth2_manager_collection.find({'expires_at': {"$lt": refresh_cutoff_utc_epoch}})
+    return records
+
+def updateauthrecord(query, data):
+    oauth2_manager_collection.update_one(query, data)
+

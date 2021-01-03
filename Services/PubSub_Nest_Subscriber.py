@@ -78,7 +78,7 @@ def pullmetainfo(last_refresh):
             token = mi.getnestapiaccesstoken()
             logger.info('Retrieving Devices')
             url = f'https://smartdevicemanagement.googleapis.com/v1/enterprises/{os.getenv("Google_Nest_Prodect_ID")}/devices'
-            headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {token["access_token"]}'}
+            headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {token}'}
             response = requests.get(url=url, headers=headers)
             response_json = json.loads(response.text)
             for device in response_json['devices']:

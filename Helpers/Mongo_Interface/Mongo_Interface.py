@@ -51,3 +51,8 @@ def updateauthrecord(query, data):
     pubsub_events_collection, oauth2_manager_collection = initializedb()
     oauth2_manager_collection.update_one(query, data)
 
+def getbackyardcameraname():
+    pubsub_events_collection, oauth2_manager_collection = initializedb()
+    records = pubsub_events_collection.find_one({"resourceUpdate.displayName": "Backyard"})
+    return records['resourceUpdate']['name']
+

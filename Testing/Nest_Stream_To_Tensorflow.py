@@ -10,7 +10,7 @@ from Helpers.Mongo_Interface import Mongo_Interface as mi
 
 token = mi.getnestapiaccesstoken()
 
-device_id = ''
+device_id = mi.getbackyardcameraname()
 
 url = f'https://smartdevicemanagement.googleapis.com/v1/{device_id}:executeCommand'
 headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {token}'}

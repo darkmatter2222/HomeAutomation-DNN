@@ -56,3 +56,8 @@ def getbackyardcameraname():
     records = pubsub_events_collection.find_one({"resourceUpdate.displayName": "Backyard"})
     return records['resourceUpdate']['name']
 
+def getfrontdoorcameraname():
+    pubsub_events_collection, oauth2_manager_collection = initializedb()
+    records = pubsub_events_collection.find_one({"resourceUpdate.displayName": "Front Door"})
+    return records['resourceUpdate']['name']
+

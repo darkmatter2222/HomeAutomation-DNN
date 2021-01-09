@@ -3,11 +3,10 @@ sys.path.append('/home/pi/HomeAutomation-DNN')
 import Initialize_Project as ip
 logger = ip.initialize()
 
+import cv2, queue, threading, time
 import requests, json
 import cv2
 import time
-import tensorflow as tf
-import tensornets as nets
 import numpy as np
 import time
 from dateutil import parser
@@ -18,16 +17,57 @@ import time
 import numpy as np
 import cv2
 
+target_frame_rate = 12
+
 import multiprocessing as mp
 
 from multiprocessing import Queue
 
+# bufferless VideoCapture
+class VideoCapture:
 
-def main():
-    device_id = mi.getfrontdoorcameraname()
+    def __init__(self, name):
+        self.cap = cv2.VideoCapture(name)
+        self.q = queue.Queue()
+        t = threading.Thread(target=self._reader)
+        t.daemon = True
+        t.start()
 
-    while True:
-        try:
+  # read frames as soon as they are available, keeping only most recent one
+    def _reader(self):
+        while True:
+            ret, frame = self.cap.read()
+            if not ret:
+                break
+            #if not self.q.empty():
+                #try:
+                #    self.q.get_nowait()   # discard previous (unprocessed) frame
+                #except queue.Empty:
+                #    pass
+            self.q.put(frame)
+
+    def read(self):
+        return self.q.get()
+
+    def readspead(self):
+        return self.q.qsize() / target_frame_rate
+
+    def queuesize(self):
+        return self.q.qsize()
+
+
+device_id = mi.getfrontdoorcameraname()
+refresh = True
+
+font = cv2.FONT_HERSHEY_SIMPLEX
+fontScale = 1
+fontColor = (255, 255, 255)
+lineType = 2
+
+
+while True:
+    try:
+        if refresh:
             token = mi.getnestapiaccesstoken()
             url = f'https://smartdevicemanagement.googleapis.com/v1/{device_id}:executeCommand'
             headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {token}'}
@@ -35,93 +75,62 @@ def main():
             response = requests.post(url=url, headers=headers, data=json.dumps(data))
             result = response.content.decode('ascii')
             json_result = json.loads(result)
+
+            print(json_result)
             expire_time = parser.isoparse(json_result['results']['expiresAt'])
-            cam = bufferless_camera(json_result['results']['streamUrls']['rtspUrl'], 640, 480)
+            cap = VideoCapture(json_result['results']['streamUrls']['rtspUrl'])
+            #vcap = cv2.VideoCapture(json_result['results']['streamUrls']['rtspUrl'])
+            refresh = False
 
-            while True:
-                refresh_cutoff_utc = datetime.now(timezone.utc) + timedelta(seconds=30)
-                if refresh_cutoff_utc > expire_time:
-                    break
-                font = cv2.FONT_HERSHEY_SIMPLEX
-                org = (50, 50)
-                fontScale = 1
-                color = (255, 0, 0)
-                thickness = 2
-                refresh_cutoff_utc = datetime.now(timezone.utc) + timedelta(minutes=5)
-                refresh_cutoff_utc_epoch = refresh_cutoff_utc.timestamp()
-                frame = cam.get_frame()
-                frame = cv2.putText(frame, str(refresh_cutoff_utc_epoch), org, font,
-                                    fontScale, color, thickness, cv2.LINE_AA)
-                cv2.imshow('VIDEO', frame)
-                cv2.waitKey(1)
+        cap_adjuster = cap.readspead()
+        read_speed = (1/target_frame_rate)
+        if cap_adjuster > 1.5:
+            read_speed = read_speed / 1.5
+        elif cap_adjuster > 0:
+            read_speed = read_speed / cap_adjuster
+        time.sleep(abs(read_speed))  # simulate time between events
+        frame = cap.read()
+        refresh_cutoff_utc = datetime.now(timezone.utc)
+        refresh_cutoff_utc_epoch = refresh_cutoff_utc.timestamp()
 
+        cv2.putText(frame, str(f"Epoch Time: {refresh_cutoff_utc_epoch}"),
+                    (10, 50),
+                    font,
+                    fontScale,
+                    fontColor,
+                    lineType)
+        act_frame_rate = round(1/read_speed,2)
+        act_color = (255, 0, 0)
+        if act_frame_rate > target_frame_rate:
+            act_color = (0, 255, 0)
+        cv2.putText(frame, str(f"Frame Rate: {act_frame_rate}/{target_frame_rate}"),
+                    (10, 100),
+                    font,
+                    fontScale,
+                    act_color,
+                    lineType)
+        cv2.putText(frame, str(f"Queue Size: {cap.queuesize()}"),
+                    (10, 150),
+                    font,
+                    fontScale,
+                    fontColor,
+                    lineType)
 
+        cv2.imshow('VIDEO', frame)
+        cv2.waitKey(1)
+        refresh_cutoff_utc = datetime.now(timezone.utc) + timedelta(seconds=30)
+        if refresh_cutoff_utc > expire_time:
+            refresh = True
 
-
-        except Exception as e:
-            print(e)
-
-
-class bufferless_camera():
-
-    def __init__(self, rtsp_url, width, height):
-        #load pipe for data transmittion to the process
-        self.parent_conn, child_conn = mp.Pipe()
-        #load process
-        self.p = mp.Process(target=self.grab_frames, args=(child_conn,rtsp_url))
-        #start process
-        self.p.daemon = True
-        self.p.start()
-        # frame size
-        self.width = width
-        self.height = height
-
-    def end(self):
-        #send closure request to process
-        self.parent_conn.send(2)
-
-    def grab_frames(self,conn,rtsp_url):
-        #load cam into seperate process
-        print("Cam Loading...")
-        cap = cv2.VideoCapture(rtsp_url,cv2.CAP_FFMPEG)
-        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
-        print("Cam Loaded...")
-        run = True
-
-        while run:
-            #grab frames from the buffer
-            cap.grab()
-
-            #receive input data
-            rec_dat = conn.recv()
-
-            #if frame requested
-            if rec_dat == 1:
-                #read current frame, send it to method that will return it to object detection
-                ret,frame = cap.read()
-                conn.send(frame)
-
-            elif rec_dat ==2:
-                #if close requested
-                cap.release()
-                run = False
-
-        print("Camera Connection Closed")
-        conn.close()
-
-    def get_frame(self,resize=None):
-        #send request
-        self.parent_conn.send(1)
-        # retrieve frame
-        frame = self.parent_conn.recv()
-
-        #reset request
-        self.parent_conn.send(0)
-
-        #return frame to object detection
-        return cv2.resize(frame,(self.width, self.height))
+    except Exception as e:
+        time.sleep(60)
+        print(e)
 
 
 
-if __name__ == "__main__":
-    main()
+
+
+
+
+
+

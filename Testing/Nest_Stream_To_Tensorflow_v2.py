@@ -90,8 +90,8 @@ while True:
         if cap_adjuster > 100:
             cap.dumpqueue()
             print("queue dumped")
-        if cap_adjuster > 1.4:
-            read_speed = read_speed / 1.4
+        elif cap_adjuster > 3:
+            read_speed = read_speed / 3
         elif cap_adjuster > 0:
             read_speed = read_speed / cap_adjuster
         time.sleep(abs(read_speed))  # simulate time between events

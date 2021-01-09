@@ -55,8 +55,11 @@ class VideoCapture:
     def queuesize(self):
         return self.q.qsize()
 
+    def dumpqueue(self):
+        return self.q.clear()
 
-device_id = mi.getfrontdoorcameraname()
+
+device_id = mi.getbackyardcameraname()
 refresh = True
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -84,8 +87,11 @@ while True:
 
         cap_adjuster = cap.readspead()
         read_speed = (1/target_frame_rate)
-        if cap_adjuster > 1.5:
-            read_speed = read_speed / 1.5
+        if cap_adjuster > 100:
+            cap.dumpqueue()
+            print("queue dumped")
+        if cap_adjuster > 1.4:
+            read_speed = read_speed / 1.4
         elif cap_adjuster > 0:
             read_speed = read_speed / cap_adjuster
         time.sleep(abs(read_speed))  # simulate time between events

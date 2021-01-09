@@ -20,7 +20,7 @@ model = nets.YOLOv3COCO(inputs, nets.Darknet19)
 classes={'0':'person','1':'bicycle','2':'car','3':'bike','5':'bus','7':'truck'}
 list_of_classes=[0,1,2,3,5,7]
 
-device_id = mi.getfrontdoorcameraname()
+device_id = mi.getbackyardcameraname()
 
 with tf.Session() as sess:
     sess.run(model.pretrained())

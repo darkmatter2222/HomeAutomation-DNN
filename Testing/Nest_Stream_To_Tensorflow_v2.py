@@ -59,7 +59,7 @@ class VideoCapture:
         return self.q.clear()
 
 
-device_id = mi.getbackyardcameraname()
+device_id = mi.getfrontdoorcameraname()
 refresh = True
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -129,6 +129,7 @@ while True:
             refresh = True
 
     except Exception as e:
+        refresh = True
         time.sleep(60)
         print(e)
 
